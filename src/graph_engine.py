@@ -1,6 +1,7 @@
 import networkx as nx
 import asyncio
 import itertools
+from difflib import SequenceMatcher
 
 # Import the ingestion function
 from ingestion import fetch_osint_data
@@ -57,6 +58,16 @@ def resolve_identities(G):
         if len(username_neighbors) >= 2:
             for u1, u2 in itertools.combinations(username_neighbors, 2):
                 G.add_edge(u1, u2, label='IS_SAME_PERSON', weight=100)
+                
+    # Phase 2: Fuzzy Username Resolution
+    username_nodes = [n for n, attr in G.nodes(data=True) if attr.get('type') == 'username']
+    
+    for u1, u2 in itertools.combinations(username_nodes, 2):
+        ratio = SequenceMatcher(None, str(u1).lower(), str(u2).lower()).ratio()
+        if ratio > 0.75:
+            # Check if an edge already exists to prevent overwriting exact matches
+            if not G.has_edge(u1, u2):
+                G.add_edge(u1, u2, label='POSSIBLE_MATCH', weight=50, color='#ffa500')
                 
     return G
 

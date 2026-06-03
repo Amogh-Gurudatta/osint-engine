@@ -33,8 +33,12 @@ def visualize_graph(G, output_file):
             color = '#ff0000'
             width = 4
             title = 'IS_SAME_PERSON'
+        elif attrs.get('label') == 'POSSIBLE_MATCH':
+            color = attrs.get('color', '#ffa500')
+            width = 2
+            title = f"POSSIBLE_MATCH"
         else:
-            color = '#555555'
+            color = attrs.get('color', '#555555')
             width = 1
             title = 'Linked Data'
             
