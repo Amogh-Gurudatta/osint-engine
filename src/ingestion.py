@@ -43,6 +43,41 @@ async def fetch_reddit(session: aiohttp.ClientSession, target_username: str) -> 
         print(f"[!] Error fetching Reddit data for {target_username}: {e}")
     return None
 
+async def fetch_hackernews(session: aiohttp.ClientSession, target_username: str) -> Dict[str, Any] | None:
+    """Fetch live data from HackerNews API."""
+    url = f"https://hacker-news.firebaseio.com/v0/user/{target_username}.json"
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                if data and data.get("id"):
+                    return {
+                        "source": "HackerNews",
+                        "username": target_username,
+                        "email": None,
+                        "location": None
+                    }
+    except Exception as e:
+        print(f"[!] Error fetching HackerNews data for {target_username}: {e}")
+    return None
+
+async def fetch_chesscom(session: aiohttp.ClientSession, target_username: str) -> Dict[str, Any] | None:
+    """Fetch live data from Chess.com API."""
+    url = f"https://api.chess.com/pub/player/{target_username}"
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    "source": "Chess.com",
+                    "username": data.get("username", target_username),
+                    "email": None,
+                    "location": data.get("location")
+                }
+    except Exception as e:
+        print(f"[!] Error fetching Chess.com data for {target_username}: {e}")
+    return None
+
 async def fetch_osint_data(target_username: str) -> List[Dict[str, Any]]:
     """
     Fetch OSINT data concurrently from multiple platforms for a given target username.
@@ -54,7 +89,9 @@ async def fetch_osint_data(target_username: str) -> List[Dict[str, Any]]:
     async with aiohttp.ClientSession(headers=headers) as session:
         results = await asyncio.gather(
             fetch_github(session, target_username),
-            fetch_reddit(session, target_username)
+            fetch_reddit(session, target_username),
+            fetch_hackernews(session, target_username),
+            fetch_chesscom(session, target_username)
         )
         
         # Filter out 404s (None values)
