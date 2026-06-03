@@ -90,7 +90,7 @@ async def fetch_osint_data(target_username: str) -> List[Dict[str, Any]]:
             fetch_reddit(session, target_username),
             fetch_hackernews(session, target_username),
             fetch_chesscom(session, target_username),
-            fetch_global_dork(session, target_username)
+            fetch_global_dork(target_username)
         )
         
         # Flatten the list of lists since all scrapers now return lists
