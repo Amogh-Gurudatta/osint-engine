@@ -15,3 +15,6 @@ output.html
 .DS_Store
 .vscode/
 .idea/
+
+#secrets
+.env
