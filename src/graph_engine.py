@@ -3,7 +3,7 @@ import asyncio
 import itertools
 
 # Import the ingestion function
-from ingestion import fetch_mock_data
+from ingestion import fetch_osint_data
 
 def build_graph(data_list):
     """
@@ -62,7 +62,8 @@ def resolve_identities(G):
 
 if __name__ == '__main__':
     # Run the async fetch and build the graph
-    data = asyncio.run(fetch_mock_data())
+    target = input("Enter target username for test: ")
+    data = asyncio.run(fetch_osint_data(target))
     
     # Step 1: Construct Graph
     G = build_graph(data)

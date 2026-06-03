@@ -2,7 +2,7 @@ import asyncio
 # pyrefly: ignore [missing-import]
 from pyvis.network import Network
 
-from ingestion import fetch_mock_data
+from ingestion import fetch_osint_data
 from graph_engine import build_graph, resolve_identities
 
 def visualize_graph(G, output_file):
@@ -48,11 +48,20 @@ def visualize_graph(G, output_file):
 
 async def run_pipeline():
     """
-    Orchestrates the data ingestion, graph construction, resolution, and visualization.
+    Orchestrates the live data ingestion, graph construction, resolution, and visualization.
     """
-    print("[*] Fetching mock footprint data from APIs...")
-    data = await fetch_mock_data()
+    target = input("\nEnter target username to investigate: ").strip()
+    if not target:
+        print("Username cannot be empty.")
+        return
+        
+    print(f"[*] Fetching live OSINT footprints for '{target}'...")
+    data = await fetch_osint_data(target)
     
+    if not data:
+        print(f"[-] No data found for '{target}' across public endpoints.")
+        return
+        
     print("[*] Building initial graph topology...")
     G = build_graph(data)
     
